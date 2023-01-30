@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceForemanKatelloProduct() *schema.Resource {
@@ -62,34 +64,34 @@ func resourceForemanKatelloProduct() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			/*
-							"ssl_ca_cert_id": &schema.Schema{
-								Type:     schema.TypeInt,
-								Optional: true,
-								Description: fmt.Sprintf(
-									"Idenifier of the SSL CA Cert."+
-										"%s",
-									autodoc.MetaExample,
-								),
-							},
-				            "ssl_client_cert_id": &schema.Schema{
-								Type:     schema.TypeInt,
-								Optional: true,
-								Description: fmt.Sprintf(
-									"Identifier of the SSL Client Cert."+
-										"%s",
-									autodoc.MetaExample,
-								),
-							},
-				            "ssl_client_key_id": &schema.Schema{
-								Type:     schema.TypeInt,
-								Optional: true,
-								Description: fmt.Sprintf(
-									"Identifier of the SSL Client Key."+
-										"%s",
-									autodoc.MetaExample,
-								),
-							}, */
+
+			"ssl_ca_cert_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Description: fmt.Sprintf(
+					"Idenifier of the SSL CA Cert."+
+						"%s",
+					autodoc.MetaExample,
+				),
+			},
+			"ssl_client_cert_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Description: fmt.Sprintf(
+					"Identifier of the SSL Client Cert."+
+						"%s",
+					autodoc.MetaExample,
+				),
+			},
+			"ssl_client_key_id": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Description: fmt.Sprintf(
+					"Identifier of the SSL Client Key."+
+						"%s",
+					autodoc.MetaExample,
+				),
+			},
 			"sync_plan_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -100,9 +102,12 @@ func resourceForemanKatelloProduct() *schema.Resource {
 				),
 			},
 			"label": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: autodoc.MetaExample,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[-_A-Za-z0-9]+$"), "Only alphanumerics, hyphen and underscore allowed"),
+				Description:  autodoc.MetaExample,
 			},
 		},
 	}
@@ -126,9 +131,9 @@ func buildForemanKatelloProduct(d *schema.ResourceData) *api.ForemanKatelloProdu
 
 	Product.Description = d.Get("description").(string)
 	Product.GpgKeyId = d.Get("gpg_key_id").(int)
-	/* 	Product.SslCaCertId = d.Get("ssl_ca_cert_id").(int)
-	   	Product.SslClientCertId = d.Get("ssl_client_cert_id").(int)
-	       Product.SslClientKeyId = d.Get("ssl_client_key_id").(int) */
+	Product.SslCaCertId = d.Get("ssl_ca_cert_id").(int)
+	Product.SslClientCertId = d.Get("ssl_client_cert_id").(int)
+	Product.SslClientKeyId = d.Get("ssl_client_key_id").(int)
 	Product.SyncPlanId = d.Get("sync_plan_id").(int)
 	Product.Label = d.Get("label").(string)
 
@@ -144,9 +149,9 @@ func setResourceDataFromForemanKatelloProduct(d *schema.ResourceData, Product *a
 	d.Set("name", Product.Name)
 	d.Set("description", Product.Description)
 	d.Set("gpg_key_id", Product.GpgKeyId)
-	/* 	d.Set("ssl_ca_cert_id", Product.SslCaCertId)
-	   	d.Set("ssl_client_cert_id", Product.SslClientCertId)
-	   	d.Set("ssl_client_key_id", Product.SslClientKeyId) */
+	d.Set("ssl_ca_cert_id", Product.SslCaCertId)
+	d.Set("ssl_client_cert_id", Product.SslClientCertId)
+	d.Set("ssl_client_key_id", Product.SslClientKeyId)
 	d.Set("sync_plan_id", Product.SyncPlanId)
 	d.Set("label", Product.Label)
 

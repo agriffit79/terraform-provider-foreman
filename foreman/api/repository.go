@@ -30,31 +30,31 @@ type ForemanKatelloRepository struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
-	Description                   string  `json:"description"`
-	Label                         string  `json:"label"`
-	ProductId                     int     `json:"product_id"`
-	Product                       Product `json:"product"`
-	ContentType                   string  `json:"content_type"`
-	Url                           string  `json:"url"`
-	GpgKeyId                      int     `json:"gpg_key_id"`
-	Unprotected                   bool    `json:"unprotected"`
-	ChecksumType                  string  `json:"checksum_type"`
-	DockerUpstreamName            string  `json:"docker_upstream_name"`
-	DockerTagsWhitelist           string  `json:"docker_tags_whitelist"`
-	DownloadPolicy                string  `json:"download_policy"`
-	DownloadConcurrency           int     `json:"download_concurrency"`
-	MirrorOnSync                  bool    `json:"mirror_on_sync"`
-	VerifySslOnSync               bool    `json:"verify_ssl_on_sync"`
-	UpstreamUsername              string  `json:"upstream_username"`
-	UpstreamPassword              string  `json:"upstream_password"`
-	DebReleases                   string  `json:"deb_releases"`
-	DebComponents                 string  `json:"deb_components"`
-	DebArchitectures              string  `json:"deb_architectures"`
-	IgnoreGlobalProxy             bool    `json:"ignore_global_proxy"`
-	IgnorableContent              string  `json:"ignorable_content"`
-	AnsibleCollectionRequirements string  `json:"ansible_collection_requirements"`
-	HttpProxyPolicy               string  `json:"http_proxy_policy"`
-	HttpProxyId                   int     `json:"http_proxy_id"`
+	Description                   string   `json:"description"`
+	Label                         string   `json:"label"`
+	ProductId                     int      `json:"product_id"`
+	Product                       Product  `json:"product"`
+	ContentType                   string   `json:"content_type"`
+	Url                           string   `json:"url"`
+	GpgKeyId                      int      `json:"gpg_key_id,omitempty"`
+	Unprotected                   bool     `json:"unprotected"`
+	ChecksumType                  string   `json:"checksum_type,omitempty"`
+	DockerUpstreamName            string   `json:"docker_upstream_name"`
+	DockerTagsWhitelist           string   `json:"docker_tags_whitelist"`
+	DownloadPolicy                string   `json:"download_policy"`
+	DownloadConcurrency           int      `json:"download_concurrency,omitempty"`
+	MirrorOnSync                  bool     `json:"mirror_on_sync"`
+	VerifySslOnSync               bool     `json:"verify_ssl_on_sync"`
+	UpstreamUsername              string   `json:"upstream_username"`
+	UpstreamPassword              string   `json:"upstream_password"`
+	DebReleases                   string   `json:"deb_releases"`
+	DebComponents                 string   `json:"deb_components"`
+	DebArchitectures              string   `json:"deb_architectures"`
+	IgnoreGlobalProxy             bool     `json:"ignore_global_proxy"`
+	IgnorableContent              []string `json:"ignorable_content"`
+	AnsibleCollectionRequirements string   `json:"ansible_collection_requirements"`
+	HttpProxyPolicy               string   `json:"http_proxy_policy"`
+	HttpProxyId                   int      `json:"http_proxy_id,omitempty"`
 }
 
 // -----------------------------------------------------------------------------

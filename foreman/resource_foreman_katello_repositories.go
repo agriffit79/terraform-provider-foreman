@@ -3,9 +3,11 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
+	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
@@ -55,13 +57,17 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				),
 			},
 			"label": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: autodoc.MetaExample,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[-_A-Za-z0-9]+$"), "Only alphanumerics, hyphen and underscore allowed"),
+				Description:  autodoc.MetaExample,
 			},
 			"product_id": {
 				Type:     schema.TypeInt,
 				Required: true,
+				ForceNew: true,
 				Description: fmt.Sprintf(
 					"Product the repository belongs to."+
 						"%s",
@@ -72,22 +78,26 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
+					"ansible_collection",
 					"deb",
 					"docker",
 					"file",
-					"puppet",
+					"ostree",
+					"python",
 					"yum",
 				}, false),
 				Description: fmt.Sprintf(
 					"Product the repository belongs to. Valid values include:"+
-						"`\"deb\"`, \"docker\"`, \"file\"`, \"puppet\"`, \"yum\"`."+
+						"`\"deb\"`, `\"docker\"`, `\"file\"`, `\"ansible_collection\"`, `\"yum\"`,"+
+						"`\"python\"`, `\"ostree\"`"+
 						"%s \"yum\"",
 					autodoc.MetaExample,
 				),
 			},
 			"url": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IsURLWithScheme([]string{"http", "https"})),
 				Description: fmt.Sprintf(
 					"Repository source url."+
 						"%s \"http://mirror.centos.org/centos/7/os/x86_64/\"",
@@ -97,6 +107,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 			"gpg_key_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 				Description: fmt.Sprintf(
 					"Identifier of the GPG key."+
 						"%s",
@@ -115,8 +126,12 @@ func resourceForemanKatelloRepository() *schema.Resource {
 			"checksum_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"sha1",
+					"sha256",
+				}, false),
 				Description: fmt.Sprintf(
-					"Checksum of the repository, currently 'sha1' & 'sha256' are supported"+
+					"Checksum of the repository, currently `\"sha1\"` & `\"sha256\"` are supported"+
 						"%s \"sha256\"",
 					autodoc.MetaExample,
 				),
@@ -145,18 +160,18 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"immediate",
 					"on_demand",
-					"background",
 				}, false),
 				Description: fmt.Sprintf(
 					"Product the repository belongs to. Valid values include:"+
-						"`\"immediate\"`, \"on_demand\"`, \"background\"`."+
+						"`\"immediate\"`, \"on_demand\"`."+
 						"%s \"immediate\"",
 					autodoc.MetaExample,
 				),
 			},
 			"download_concurrency": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 19),
 				Description: fmt.Sprintf(
 					"Used to determine download concurrency of the repository in pulp3. "+
 						"Use value less than 20. Defaults to 10"+
@@ -192,8 +207,9 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				),
 			},
 			"upstream_password": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 				Description: fmt.Sprintf(
 					"Password of the upstream repository user used for authentication."+
 						"%s \"S3cr3t123!\"",
@@ -236,12 +252,15 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"ignorable_content": { //array
-				Type:     schema.TypeString,
+			"ignorable_content": {
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 				Optional: true,
 				Description: fmt.Sprintf(
 					"List of content units to ignore while syncing a yum repository. "+
-						"Must be subset of rpm,drpm,srpm,distribution,erratum"+
+						"Must be subset of `\"srpm\"`"+
 						"%s",
 					autodoc.MetaExample,
 				),
@@ -258,6 +277,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 			"http_proxy_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "none",
 				ValidateFunc: validation.StringInSlice([]string{
 					"global_default_http_proxy",
 					"none",
@@ -265,7 +285,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				}, false),
 				Description: fmt.Sprintf(
 					"Policies for HTTP proxy for content sync. Valid values include:"+
-						"`\"global_default_http_proxy\"`, \"none\"`, \"use_selected_http_proxy\"`."+
+						"`\"global_default_http_proxy\"`, `\"none\"`, `\"use_selected_http_proxy\"`."+
 						"%s \"global_default_http_proxy\"",
 					autodoc.MetaExample,
 				),
@@ -319,10 +339,13 @@ func buildForemanKatelloRepository(d *schema.ResourceData) *api.ForemanKatelloRe
 	Repository.DebComponents = d.Get("deb_components").(string)
 	Repository.DebArchitectures = d.Get("deb_architectures").(string)
 	Repository.IgnoreGlobalProxy = d.Get("ignore_global_proxy").(bool)
-	Repository.IgnorableContent = d.Get("ignorable_content").(string)
 	Repository.AnsibleCollectionRequirements = d.Get("ansible_collection_requirements").(string)
 	Repository.HttpProxyPolicy = d.Get("http_proxy_policy").(string)
 	Repository.HttpProxyId = d.Get("http_proxy_id").(int)
+
+	attr := d.Get("ignorable_content")
+	attrSet := attr.(*schema.Set)
+	Repository.IgnorableContent = conv.InterfaceSliceToStringSlice(attrSet.List())
 
 	return &Repository
 }

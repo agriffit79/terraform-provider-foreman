@@ -28,6 +28,8 @@ type ForemanKatelloContentCredential struct {
 
 	// Public key block in DER encoding
 	Content string `json:"content"`
+	// Content type
+	ContentType string `json:"content_type"`
 }
 
 // -----------------------------------------------------------------------------

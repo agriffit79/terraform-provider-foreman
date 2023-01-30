@@ -28,3 +28,4 @@ autodoc
 crash.log
 terraform-provider-foreman.log
 terraform-provider-foreman
+test.http

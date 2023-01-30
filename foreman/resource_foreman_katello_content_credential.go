@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceForemanKatelloContentCredential() *schema.Resource {
@@ -58,6 +59,20 @@ func resourceForemanKatelloContentCredential() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
+
+			"content_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "gpg_key",
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice([]string{
+					"cert",
+					"gpg_key",
+				}, false)),
+				Description: fmt.Sprintf(
+					"%s Type of content: `\"cert\"`, `\"gpg_key\"`. Value defaults to gpg_key for backwards compatabilty.",
+					autodoc.MetaExample,
+				),
+			},
 		},
 	}
 }
@@ -79,6 +94,7 @@ func buildForemanKatelloContentCredential(d *schema.ResourceData) *api.ForemanKa
 	contentCredential.ForemanObject = *obj
 
 	contentCredential.Content = d.Get("content").(string)
+	contentCredential.ContentType = d.Get("content_type").(string)
 
 	return &contentCredential
 }
@@ -91,6 +107,7 @@ func setResourceDataFromForemanKatelloContentCredential(d *schema.ResourceData, 
 	d.SetId(strconv.Itoa(contentCredential.Id))
 	d.Set("name", contentCredential.Name)
 	d.Set("content", contentCredential.Content)
+	d.Set("content_type", contentCredential.ContentType)
 }
 
 // -----------------------------------------------------------------------------

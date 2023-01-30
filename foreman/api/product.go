@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
@@ -25,13 +26,24 @@ type ForemanKatelloProduct struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
-	Description string `json:"description"`
-	GpgKeyId    int    `json:"gpg_key_id"`
-	/* 	SslCaCertId int `json:"ssl_ca_cert_id"`
-	   	SslClientCertId int `json:"ssl_client_cert_id"`
-	   	SslClientKeyId  int `json:"ssl_client_key_id"` */
-	SyncPlanId int    `json:"sync_plan_id"`
-	Label      string `json:"label"`
+	Description     string `json:"description"`
+	GpgKeyId        int    `json:"gpg_key_id,omitempty"`
+	SslCaCertId     int    `json:"ssl_ca_cert_id,omitempty"`
+	SslClientCertId int    `json:"ssl_client_cert_id,omitempty"`
+	SslClientKeyId  int    `json:"ssl_client_key_id,omitempty"`
+	SyncPlanId      int    `json:"sync_plan_id,omitempty"`
+	Label           string `json:"label,omitempty"`
+	OrganizationId  int    `json:"organization_id,omitempty"`
+}
+
+// ForemanKatelloProduct struct used for JSON decode.  Foreman API returns the ids
+// back as ForemanObjects with some of the attributes of the data
+// types. However, we are only interested in the IDs returned.
+type KatelloProductDecode struct {
+	ForemanKatelloProduct
+	CaCertDecode     ForemanObject `json:"ssl_ca_cert"`
+	ClientCertDecode ForemanObject `json:"ssl_client_cert"`
+	ClientKeyDecode  ForemanObject `json:"ssl_client_key"`
 }
 
 // -----------------------------------------------------------------------------
@@ -44,6 +56,9 @@ type ForemanKatelloProduct struct {
 // other API default values set by this function.
 func (c *Client) CreateKatelloProduct(ctx context.Context, p *ForemanKatelloProduct) (*ForemanKatelloProduct, error) {
 	log.Tracef("foreman/api/product.go#Create")
+
+	// Inject organization_id from provider config
+	p.OrganizationId = c.clientConfig.OrganizationID
 
 	sJSONBytes, jsonEncErr := c.WrapJSON(nil, p)
 	if jsonEncErr != nil {
@@ -90,15 +105,19 @@ func (c *Client) ReadKatelloProduct(ctx context.Context, id int) (*ForemanKatell
 		return nil, reqErr
 	}
 
-	var readKatelloProduct ForemanKatelloProduct
+	var readKatelloProduct KatelloProductDecode
 	sendErr := c.SendAndParse(req, &readKatelloProduct)
 	if sendErr != nil {
 		return nil, sendErr
 	}
 
+	readKatelloProduct.SslCaCertId = readKatelloProduct.CaCertDecode.Id
+	readKatelloProduct.SslClientCertId = readKatelloProduct.ClientCertDecode.Id
+	readKatelloProduct.SslClientKeyId = readKatelloProduct.ClientKeyDecode.Id
+
 	log.Debugf("readKatelloProduct: [%+v]", readKatelloProduct)
 
-	return &readKatelloProduct, nil
+	return &readKatelloProduct.ForemanKatelloProduct, nil
 }
 
 // UpdateKatelloProduct updates a ForemanKatelloProduct's attributes.  The sync plan
@@ -181,7 +200,9 @@ func (c *Client) QueryKatelloProduct(ctx context.Context, p *ForemanKatelloProdu
 
 	// dynamically build the query based on the attributes
 	reqQuery := req.URL.Query()
+	org_id := c.clientConfig.OrganizationID
 	name := `"` + p.Name + `"`
+	reqQuery.Set("organization_id", strconv.Itoa(org_id))
 	reqQuery.Set("search", "name="+name)
 
 	req.URL.RawQuery = reqQuery.Encode()
