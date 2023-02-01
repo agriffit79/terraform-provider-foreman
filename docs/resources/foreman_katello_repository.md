@@ -32,8 +32,8 @@ resource "foreman_katello_repository" "example" {
 The following arguments are supported:
 
 - `ansible_collection_requirements` - (Optional) Contents of requirement yaml file to sync from URL.
-- `checksum_type` - (Optional) Checksum of the repository, currently 'sha1' & 'sha256' are supported
-- `content_type` - (Required) Product the repository belongs to. Valid values include:`"deb"`, "docker"`, "file"`, "puppet"`, "yum"`.
+- `checksum_type` - (Optional) Checksum of the repository, currently `"sha1"` & `"sha256"` are supported
+- `content_type` - (Required) Product the repository belongs to. Valid values include:`"deb"`, `"docker"`, `"file"`, `"ansible_collection"`, `"yum"`,`"python"`, `"ostree"`
 - `deb_architectures` - (Optional) Comma separated list of architectures to be synched from deb-archive.
 - `deb_components` - (Optional) Comma separated list of repo components to be synched from deb-archive.
 - `deb_releases` - (Optional) Comma separated list of releases to be synched from deb-archive.
@@ -41,16 +41,16 @@ The following arguments are supported:
 - `docker_tags_whitelist` - (Optional) Comma separated list of tags to sync for Container Image repository.
 - `docker_upstream_name` - (Optional) Name of the upstream docker repository
 - `download_concurrency` - (Optional) Used to determine download concurrency of the repository in pulp3. Use value less than 20. Defaults to 10
-- `download_policy` - (Optional) Product the repository belongs to. Valid values include:`"immediate"`, "on_demand"`, "background"`.
+- `download_policy` - (Optional) Product the repository belongs to. Valid values include:`"immediate"`, "on_demand"`.
 - `gpg_key_id` - (Optional) Identifier of the GPG key.
 - `http_proxy_id` - (Optional) ID of a HTTP Proxy.
-- `http_proxy_policy` - (Optional) Policies for HTTP proxy for content sync. Valid values include:`"global_default_http_proxy"`, "none"`, "use_selected_http_proxy"`.
-- `ignorable_content` - (Optional) List of content units to ignore while syncing a yum repository. Must be subset of rpm,drpm,srpm,distribution,erratum
+- `http_proxy_policy` - (Optional) Policies for HTTP proxy for content sync. Valid values include:`"global_default_http_proxy"`, `"none"`, `"use_selected_http_proxy"`.
+- `ignorable_content` - (Optional) List of content units to ignore while syncing a yum repository. Must be subset of `"srpm"`
 - `ignore_global_proxy` - (Optional) If true, will ignore the globally configured proxy when syncing.
-- `label` - (Optional) 
+- `label` - (Optional, Force New) 
 - `mirror_on_sync` - (Optional) true if this repository when synced has to be mirrored from the source and stale rpms removed.
 - `name` - (Required) Repository name.
-- `product_id` - (Required) Product the repository belongs to.
+- `product_id` - (Required, Force New) Product the repository belongs to.
 - `unprotected` - (Optional) true if this repository can be published via HTTP.
 - `upstream_password` - (Optional) Password of the upstream repository user used for authentication.
 - `upstream_username` - (Optional) Username of the upstream repository user used for authentication.
@@ -63,8 +63,8 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `ansible_collection_requirements` - Contents of requirement yaml file to sync from URL.
-- `checksum_type` - Checksum of the repository, currently 'sha1' & 'sha256' are supported
-- `content_type` - Product the repository belongs to. Valid values include:`"deb"`, "docker"`, "file"`, "puppet"`, "yum"`.
+- `checksum_type` - Checksum of the repository, currently `"sha1"` & `"sha256"` are supported
+- `content_type` - Product the repository belongs to. Valid values include:`"deb"`, `"docker"`, `"file"`, `"ansible_collection"`, `"yum"`,`"python"`, `"ostree"`
 - `deb_architectures` - Comma separated list of architectures to be synched from deb-archive.
 - `deb_components` - Comma separated list of repo components to be synched from deb-archive.
 - `deb_releases` - Comma separated list of releases to be synched from deb-archive.
@@ -72,11 +72,11 @@ The following attributes are exported:
 - `docker_tags_whitelist` - Comma separated list of tags to sync for Container Image repository.
 - `docker_upstream_name` - Name of the upstream docker repository
 - `download_concurrency` - Used to determine download concurrency of the repository in pulp3. Use value less than 20. Defaults to 10
-- `download_policy` - Product the repository belongs to. Valid values include:`"immediate"`, "on_demand"`, "background"`.
+- `download_policy` - Product the repository belongs to. Valid values include:`"immediate"`, "on_demand"`.
 - `gpg_key_id` - Identifier of the GPG key.
 - `http_proxy_id` - ID of a HTTP Proxy.
-- `http_proxy_policy` - Policies for HTTP proxy for content sync. Valid values include:`"global_default_http_proxy"`, "none"`, "use_selected_http_proxy"`.
-- `ignorable_content` - List of content units to ignore while syncing a yum repository. Must be subset of rpm,drpm,srpm,distribution,erratum
+- `http_proxy_policy` - Policies for HTTP proxy for content sync. Valid values include:`"global_default_http_proxy"`, `"none"`, `"use_selected_http_proxy"`.
+- `ignorable_content` - List of content units to ignore while syncing a yum repository. Must be subset of `"srpm"`
 - `ignore_global_proxy` - If true, will ignore the globally configured proxy when syncing.
 - `label` - 
 - `mirror_on_sync` - true if this repository when synced has to be mirrored from the source and stale rpms removed.

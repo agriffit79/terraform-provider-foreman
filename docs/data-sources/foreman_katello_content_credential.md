@@ -27,5 +27,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `content` - Public key block in DER encoding or certificate content.
+- `content_type` - Type of content: `"cert"`, `"gpg_key"`. Value defaults to gpg_key for backwards compatabilty.
 - `name` - Identifier of the content credential.
 

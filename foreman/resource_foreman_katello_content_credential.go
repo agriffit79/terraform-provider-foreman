@@ -69,7 +69,8 @@ func resourceForemanKatelloContentCredential() *schema.Resource {
 					"gpg_key",
 				}, false)),
 				Description: fmt.Sprintf(
-					"%s Type of content: `\"cert\"`, `\"gpg_key\"`. Value defaults to gpg_key for backwards compatabilty.",
+					"Type of content: `\"cert\"`, `\"gpg_key\"`. Value defaults to gpg_key for backwards compatabilty."+
+						"%s \"gpg_key\"",
 					autodoc.MetaExample,
 				),
 			},

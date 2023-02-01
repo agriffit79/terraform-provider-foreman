@@ -30,5 +30,8 @@ The following attributes are exported:
 - `gpg_key_id` - Identifier of the GPG key.
 - `label` - 
 - `name` - Product name.
+- `ssl_ca_cert_id` - Idenifier of the SSL CA Cert.
+- `ssl_client_cert_id` - Identifier of the SSL Client Cert.
+- `ssl_client_key_id` - Identifier of the SSL Client Key.
 - `sync_plan_id` - Plan numeric identifier.
 

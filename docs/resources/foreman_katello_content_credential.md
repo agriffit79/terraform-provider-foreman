@@ -13,6 +13,7 @@ resource "foreman_katello_content_credential" "example" {
   content = "-----BEGIN PGP PUBLIC KEY BLOCK-----
 ...
 -----END PGP PUBLIC KEY BLOCK-----"
+  content_type = "gpg_key"
   name = "RPM-GPG-KEY-centos7"
 }
 ```
@@ -23,6 +24,7 @@ resource "foreman_katello_content_credential" "example" {
 The following arguments are supported:
 
 - `content` - (Required) Public key block in DER encoding or certificate content.
+- `content_type` - (Optional) Type of content: `"cert"`, `"gpg_key"`. Value defaults to gpg_key for backwards compatabilty.
 - `name` - (Required) Identifier of the content credential.
 
 
@@ -31,5 +33,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `content` - Public key block in DER encoding or certificate content.
+- `content_type` - Type of content: `"cert"`, `"gpg_key"`. Value defaults to gpg_key for backwards compatabilty.
 - `name` - Identifier of the content credential.
 
