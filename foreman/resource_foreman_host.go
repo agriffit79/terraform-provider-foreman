@@ -763,6 +763,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	imageId := d.Get("image_id").(int)
 	if imageId != 0 {
 		host.ImageId = &imageId
+		host.Method = "image"
 	}
 	modelId := d.Get("model_id").(int)
 	if modelId != 0 {
